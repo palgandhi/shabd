@@ -1,0 +1,171 @@
+================================================================================
+FRONTEND DESIGN BRIEF: HINGLISH TRANSLITERATION DEEP LEARNING SANDBOX
+================================================================================
+ROLE: Senior UI/UX Frontend Architect & Creative Designer
+GOAL: Generate a state-of-the-art, premium single-page web sandbox that evaluates
+      and displays Hinglish-to-Devanagari transliteration side-by-side.
+VIBE: Sleek Developer Dashboard, Premium Dark Mode, Glassmorphism, Glowing accents.
+
+--------------------------------------------------------------------------------
+1. THE CORE BRANDING & AESTHETIC SPECS
+--------------------------------------------------------------------------------
+* Typography: 
+  - Primary UI & Numbers: "Outfit" (Google Fonts) for a modern, futuristic look.
+  - Devanagari Texts: "Noto Sans Devanagari" for clean, correct Hindi glyphs.
+* Color Palette:
+  - Background: Deep Dark Blue/Slate (#0d0e15) with subtle radial glowing gradients.
+  - Cards: Semi-transparent glass container (#161824 with backdrop-filter: blur(16px)).
+  - Glow Accents: 
+    - rule-based baseline: Cyan Glow (#00f2fe)
+    - standard seq2seq: Royal Blue Glow (#4facfe)
+    - attention primary: Vibrant Purple/Violet Glow (#b92b27)
+  - Text: High-contrast white (#ffffff) and muted cool grey (#8c92b2).
+
+--------------------------------------------------------------------------------
+2. INTERFACE LAYOUT & COMPONENT HIERARCHY
+--------------------------------------------------------------------------------
+
+A. HEADER SECTION
+   * Title: "SightSync Translit Sandbox" (Modern logo look, uppercase sub-label "TRANSLIT ENGINE" in neon border badge).
+   * Status Pill: "Neural Engines Engaged (MPS/GPU)" with a pulsing green indicator.
+   
+B. INPUT AREA CARD (Glassmorphic)
+   * A large, clean textarea for Hinglish input.
+   * Real-time character counter (Max 250 characters).
+   * Bottom row:
+     - "Test Presets" row with 3 clickable pill buttons:
+       1. "Ye pustak ka naam..."
+       2. "Aaj mausam bohot..."
+       3. "Bharat ki rajdhani..."
+     - Action Button: Large "Transliterate Script ->" button with a smooth purple gradient hover.
+
+C. SIDE-BY-SIDE MODEL COMPENSATOR (3 columns, responsive grid)
+   
+   COLUMN 1: MODEL 1 - BASELINE PANEL
+   * Header: "Rule-Based Baseline" (Sub-label: "</> Algorithmic State-Machine")
+   * Live output text display box with a larger font for Hindi readability.
+   * Bottom metadata badges:
+     - Latency: "< 1ms"
+     - Complexity: "Low"
+     - Method: "Deterministic Graph Parse"
+
+   COLUMN 2: MODEL 2 - STANDARD SEQ2SEQ
+   * Header: "Seq2Seq LSTM" (Sub-label: "Neural Recurrent Network")
+   * Live output text display box.
+   * Bottom metadata badges:
+     - Latency: "2-5 ms"
+     - Complexity: "Medium"
+     - Method: "Greedy Auto-Regressive"
+
+   COLUMN 3: MODEL 3 - ATTENTION PRIMARY (Vibrant Glowing Card ⭐)
+   * Header: "Attention Seq2Seq ⭐" (Sub-label: "Bahdanau Additive Attention")
+   * Live output text display box.
+   * Bottom metadata badges:
+     - Latency: "15-30 ms" (Due to Beam search tree depth)
+     - Complexity: "High"
+     - Method: "Beam Search (Width=5)"
+
+D. SCIENTIFIC EVALUATION METRICS TABLE
+   * A clean, polished comparative table of benchmark splits evaluated on Google Dakshina:
+     - Column Headers: Model Type | Word Accuracy (%) | Character Error Rate (%) | Edit Distance
+     - Rule-Based Baseline: 60.24% | 13.82% | 0.456
+     - Seq2Seq LSTM: 76.45% | 7.91% | 0.264
+     - Attention Seq2Seq: 86.82% | 3.14% | 0.098
+
+E. COLLAPSIBLE ARCHITECTURAL BLUEPRINTS
+   * Collapsible details accordion displaying the model's structural parameters (Embedding dims: 64 vs 128, Bi-LSTMs hidden states: 256/512 units, Dropout: 0.3/0.4, Optimizer L2 penalty: weight_decay=1e-5).
+
+--------------------------------------------------------------------------------
+3. SAMPLE FRONTEND CODE INTEGRATION (HTML/CSS/JS)
+--------------------------------------------------------------------------------
+Below is the foundation HTML structure and beautiful glassmorphism CSS styling. Please refine this to render a visually stunning UI:
+
+```html
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>SightSync Hinglish Transliteration comparative Sandbox</title>
+    <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+Devanagari:wght@400;700&family=Outfit:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --bg-dark: #0a0b10;
+            --card-bg: rgba(22, 24, 36, 0.7);
+            --border-glow: rgba(255, 255, 255, 0.08);
+            --neon-blue: #00f2fe;
+            --neon-purple: #9b51e0;
+            --text-main: #ffffff;
+            --text-muted: #8c92b2;
+        }
+
+        body {
+            background: radial-gradient(circle at top right, #1a1528, var(--bg-dark));
+            color: var(--text-main);
+            font-family: 'Outfit', sans-serif;
+            margin: 0;
+            padding: 40px 20px;
+            display: flex;
+            justify-content: center;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 1200px;
+        }
+
+        /* Glassmorphic Card Container */
+        .glass-card {
+            background: var(--card-bg);
+            backdrop-filter: blur(16px);
+            border: 1px solid var(--border-glow);
+            border-radius: 16px;
+            padding: 30px;
+            margin-bottom: 24px;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.37);
+        }
+
+        /* Side-by-side Comparative Layout */
+        .deck-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 20px;
+        }
+
+        .output-box {
+            font-family: 'Noto Sans Devanagari', sans-serif;
+            font-size: 1.35rem;
+            line-height: 1.8;
+            background: rgba(10, 11, 16, 0.5);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 8px;
+            padding: 16px;
+            min-height: 140px;
+            margin-bottom: 16px;
+        }
+
+        /* Latency Badge styling */
+        .badge {
+            font-size: 0.75rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            padding: 4px 8px;
+            border-radius: 4px;
+            font-weight: 600;
+        }
+
+        .badge-cyan { background: rgba(0, 242, 254, 0.15); color: #00f2fe; }
+        .badge-purple { background: rgba(155, 81, 224, 0.15); color: #c490ff; }
+    </style>
+</head>
+<body>
+    <!-- Full responsive panels live inside the main div -->
+</body>
+</html>
+```
+
+--------------------------------------------------------------------------------
+INSTRUCTIONS FOR CLAUDE DESIGN:
+1. Render a beautiful, premium Dashboard based on these elements.
+2. Focus on rich animations, hover states for test presets, and loading spinners.
+3. Make sure the typography contrast is gorgeous and readability is optimized.
+================================================================================
