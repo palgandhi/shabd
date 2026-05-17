@@ -4,7 +4,9 @@ import pickle
 import torch
 import random
 import numpy as np
-from flask import Flask, request, jsonify, render_template
+from flask import Flask, request, jsonify, render_template, Response, send_from_directory
+from flask_cors import CORS
+from ollama_client import OllamaChat
 
 # Import models and inference routines
 from models.rule_based import transliterate_word as rule_word, transliterate_sentence as rule_sentence
@@ -18,7 +20,8 @@ random.seed(SEED)
 np.random.seed(SEED)
 torch.manual_seed(SEED)
 
-app = Flask(__name__)
+app = Flask(__name__, static_folder="frontend-react/dist", static_url_path="")
+CORS(app)
 
 # Device setup
 device = torch.device('cuda' if torch.cuda.is_available() else ('mps' if torch.backends.mps.is_available() else 'cpu'))
@@ -94,9 +97,81 @@ load_models_at_startup()
 @app.route('/')
 def index():
     """
-    Renders the central comparative sandbox web interface.
+    Serves the beautiful dark green React Web Application.
     """
+    if os.path.exists(os.path.join(app.static_folder, 'index.html')):
+        return send_from_directory(app.static_folder, 'index.html')
     return render_template('index.html')
+
+@app.route('/transliterate', methods=['POST'])
+def transliterate():
+    """
+    Accepts a Hinglish sentence and transliterates it using ONLY the selected model.
+    """
+    data = request.json or {}
+    text = data.get('message', '').strip()
+    model_id = data.get('model', 'attention').strip() # baseline, seq2seq, attention
+    
+    if not text:
+        return jsonify({"error": "Empty message inputs provided"}), 400
+        
+    vocab = models_state.get("vocab")
+    result = ""
+    
+    if model_id == 'baseline':
+        result = rule_sentence(text)
+    elif model_id == 'seq2seq':
+        if models_state["seq2seq_trained"] and vocab:
+            try:
+                result = transliterate_sentence_nn(
+                    text, models_state["seq2seq"],
+                    vocab["src_vocab"], vocab["tgt_vocab"],
+                    decode_mode='greedy'
+                )
+            except Exception:
+                result = rule_sentence(text)
+        else:
+            result = rule_sentence(text)
+    else: # attention (best)
+        if models_state["attention_trained"] and vocab:
+            try:
+                result = transliterate_sentence_nn(
+                    text, models_state["attention"],
+                    vocab["src_vocab"], vocab["tgt_vocab"],
+                    decode_mode='beam', beam_width=5
+                )
+            except Exception:
+                result = rule_sentence(text)
+        else:
+            result = rule_sentence(text)
+            
+    return jsonify({
+        "result": result,
+        "model": model_id
+    })
+
+@app.route('/chat_stream', methods=['POST'])
+def chat_stream():
+    """
+    Streams Hindi responses from the background Gemma LLM in real-time.
+    """
+    data = request.json or {}
+    devanagari_text = data.get('message', '').strip()
+    
+    if not devanagari_text:
+        return jsonify({"error": "No Devanagari text supplied"}), 400
+        
+    chat_engine = OllamaChat()
+    
+    def generate():
+        for chunk in chat_engine.stream_response(devanagari_text):
+            yield chunk
+    
+    response = Response(generate(), mimetype='text/plain; charset=utf-8')
+    response.headers['X-Accel-Buffering'] = 'no'
+    response.headers['Cache-Control'] = 'no-cache'
+    response.headers['Transfer-Encoding'] = 'chunked'
+    return response
 
 @app.route('/compare', methods=['POST'])
 def compare():

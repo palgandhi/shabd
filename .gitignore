@@ -22,3 +22,10 @@ training/artifacts/training_log.txt
 venv/
 env/
 .env
+
+# Frontend Dependencies and Builds
+node_modules/
+frontend-react/node_modules/
+frontend-react/dist/
+dist/
+*.tsbuildinfo
