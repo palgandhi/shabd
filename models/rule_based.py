@@ -107,6 +107,8 @@ def transliterate_sentence(sentence):
     for tok in tokens:
         if re.fullmatch(r"[a-zA-Z]+", tok):
             out.append(transliterate_word(tok))
+        elif tok == '.':
+            out.append('।')
         else:
             out.append(tok)   # Pass through punctuation, numbers, spaces
     return "".join(out)

@@ -3,212 +3,382 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Hinglish Transliteration Comparative Sandbox</title>
-    <!-- Google Fonts -->
+    <title>ThinkAI - Chat</title>
+    
+    <!-- Modern Typography -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=Noto+Sans+Devanagari:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
-    <!-- FontAwesome Icons -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <!-- Custom Style -->
-    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --bg-color: #f7fbf8;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --text-tertiary: #9ca3af;
+            --pill-bg: #eef3ef;
+            --pill-hover: #e2e8e4;
+            --input-bg: #ffffff;
+            --border-light: #e5e7eb;
+            --accent-green: #34d399;
+            --font-family: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        body {
+            font-family: var(--font-family);
+            background-color: var(--bg-color);
+            background-image: radial-gradient(circle at 50% -10%, #dcfce7 0%, var(--bg-color) 40%);
+            background-repeat: no-repeat;
+            color: var(--text-primary);
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow-x: hidden;
+        }
+
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 1.5rem 2rem;
+            width: 100%;
+        }
+
+        .logo-container {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--text-primary);
+        }
+
+        .logo-icon {
+            width: 28px;
+            height: 28px;
+            background: #ffffff;
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .user-avatar {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background-color: #e5e7eb;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 500;
+            color: var(--text-secondary);
+            font-size: 0.9rem;
+        }
+
+        /* Main Content */
+        main {
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            padding: 2rem;
+            max-width: 900px;
+            margin: 0 auto;
+            width: 100%;
+            margin-top: -40px; /* Slight adjustment to center visually */
+        }
+
+        /* Central Orb */
+        .orb-container {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 2rem;
+            position: relative;
+        }
+
+        .orb {
+            width: 100%;
+            height: 100%;
+            border-radius: 50%;
+            background: linear-gradient(180deg, #10b981 0%, #a7f3d0 50%, #ffffff 100%);
+            box-shadow: 0 10px 25px rgba(16, 185, 129, 0.2), inset 0 -10px 20px rgba(255,255,255,0.8);
+            position: relative;
+            z-index: 2;
+        }
+
+        .orb-glow {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 120%;
+            height: 120%;
+            background: radial-gradient(circle, rgba(52, 211, 153, 0.4) 0%, rgba(255,255,255,0) 70%);
+            z-index: 1;
+            filter: blur(10px);
+        }
+
+        /* Typography */
+        h1 {
+            font-size: 2.25rem;
+            font-weight: 600;
+            text-align: center;
+            line-height: 1.2;
+            letter-spacing: -0.02em;
+            margin-bottom: 1rem;
+        }
+
+        .subtitle {
+            color: var(--text-secondary);
+            font-size: 0.95rem;
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        /* Prompts */
+        .prompts-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 1rem;
+            width: 100%;
+            margin-bottom: 0.75rem;
+        }
+
+        .prompt-pill {
+            background-color: var(--pill-bg);
+            border-radius: 12px;
+            padding: 1rem;
+            font-size: 0.85rem;
+            color: var(--text-primary);
+            line-height: 1.4;
+            cursor: pointer;
+            transition: background-color 0.2s ease;
+            display: flex;
+            align-items: flex-start;
+        }
+
+        .prompt-pill:hover {
+            background-color: var(--pill-hover);
+        }
+
+        .refresh-btn {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            color: var(--text-secondary);
+            font-size: 0.75rem;
+            cursor: pointer;
+            align-self: flex-start;
+            width: 100%;
+            margin-bottom: 2.5rem;
+        }
+
+        .refresh-btn svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        /* Input Area */
+        .input-container {
+            width: 100%;
+            background: var(--input-bg);
+            border-radius: 16px;
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.03), 0 1px 3px rgba(0,0,0,0.02);
+            padding: 1rem 1.25rem;
+            border: 1px solid rgba(255,255,255,0.5);
+            display: flex;
+            flex-direction: column;
+            gap: 1rem;
+        }
+
+        textarea {
+            width: 100%;
+            border: none;
+            resize: none;
+            outline: none;
+            font-family: var(--font-family);
+            font-size: 1rem;
+            color: var(--text-primary);
+            background: transparent;
+            min-height: 48px;
+        }
+
+        textarea::placeholder {
+            color: var(--text-tertiary);
+        }
+
+        .input-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .model-selector {
+            display: flex;
+            align-items: center;
+            gap: 0.4rem;
+            font-size: 0.85rem;
+            font-weight: 500;
+            color: var(--text-secondary);
+            cursor: pointer;
+        }
+
+        .model-selector .tag {
+            color: #3b82f6;
+            background: #eff6ff;
+            padding: 2px 6px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+            display: flex;
+            align-items: center;
+            gap: 2px;
+        }
+
+        .action-buttons {
+            display: flex;
+            align-items: center;
+            gap: 0.75rem;
+        }
+
+        .icon-btn {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            padding: 0.25rem;
+            border-radius: 6px;
+            transition: color 0.2s, background-color 0.2s;
+        }
+
+        .icon-btn:hover {
+            color: var(--text-secondary);
+            background-color: var(--pill-bg);
+        }
+
+        .icon-btn svg {
+            width: 20px;
+            height: 20px;
+        }
+
+        /* Footer Hints */
+        .footer-hints {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            margin-top: 1rem;
+            font-size: 0.7rem;
+            color: var(--text-tertiary);
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .prompts-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            h1 {
+                font-size: 1.75rem;
+            }
+        }
+        @media (max-width: 480px) {
+            .prompts-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
 </head>
 <body>
-    <div class="background-blobs">
-        <div class="blob blob-purple"></div>
-        <div class="blob blob-blue"></div>
-        <div class="blob blob-indigo"></div>
-    </div>
 
-    <div class="app-container">
-        <!-- Header -->
-        <header class="app-header">
-            <div class="logo-area">
-                <i class="fa-solid fa-language logo-icon"></i>
-                <div class="logo-text">
-                    <h1>SightSync <span class="badge-tag primary">Translit Engine</span></h1>
-                    <p>Phonetic Hinglish-to-Devanagari Deep Learning Sandbox</p>
-                </div>
+    <header>
+        <div class="logo-container">
+            <div class="logo-icon">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                    <path d="M9 3v18"></path>
+                    <path d="M15 3v18"></path>
+                </svg>
             </div>
-            <div class="system-status-indicator">
-                <span class="status-dot pulsing" id="statusDot"></span>
-                <span class="status-text" id="statusText">Detecting Neural Engine...</span>
-            </div>
-        </header>
+            ThinkAI
+        </div>
+        <div class="user-avatar">M</div>
+    </header>
 
-        <main class="main-content">
-            <!-- Sandbox Section -->
-            <section class="sandbox-console-section">
-                <div class="glass-card console-card">
-                    <div class="card-header">
-                        <h2><i class="fa-solid fa-keyboard header-icon"></i> Input Hinglish Text</h2>
-                        <span class="character-count" id="charCount">0 characters</span>
-                    </div>
-                    <div class="input-wrapper">
-                        <textarea 
-                            id="hinglishInput" 
-                            placeholder="Type Hinglish phonetically here... (e.g. 'Ye pustak ka naam kya hai?')" 
-                            maxlength="250"
-                        ></textarea>
-                    </div>
-                    
-                    <div class="console-actions">
-                        <div class="presets-container">
-                            <span class="preset-label">Test Presets:</span>
-                            <button class="preset-btn" data-preset="Ye pustak ka naam kya hai?">Ye pustak ka naam...</button>
-                            <button class="preset-btn" data-preset="Aaj mausam bohot accha hai.">Aaj mausam bohot...</button>
-                            <button class="preset-btn" data-preset="Mujhe ek chhota joke sunao">Mujhe joke sunao...</button>
-                        </div>
-                        <button id="transliterateBtn" class="action-btn-primary">
-                            <span>Transliterate Script</span>
-                            <i class="fa-solid fa-arrow-right-long btn-icon"></i>
-                        </button>
-                    </div>
-                </div>
-            </section>
+    <main>
+        <div class="orb-container">
+            <div class="orb-glow"></div>
+            <div class="orb"></div>
+        </div>
 
-            <!-- Side-by-Side Model Outputs Grid -->
-            <section class="comparison-deck-section">
-                <div class="section-title-area">
-                    <h2>Comparative Model Deck</h2>
-                    <p>Side-by-side output evaluation of three distinct mathematical transliterators</p>
+        <h1>
+            Good evening, Milovan<br>
+            Can I help you with anything?
+        </h1>
+        
+        <p class="subtitle">Choose a prompt below or write your own to start chatting with ThinkAI</p>
+
+        <div class="prompts-grid">
+            <div class="prompt-pill">Get fresh perspectives on tricky problems</div>
+            <div class="prompt-pill">Brainstorm creative ideas</div>
+            <div class="prompt-pill">Rewrite message for maximum impact</div>
+            <div class="prompt-pill">Summarize key points</div>
+        </div>
+
+        <div class="refresh-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="23 4 23 10 17 10"></polyline>
+                <path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"></path>
+            </svg>
+            Refresh prompts
+        </div>
+
+        <div class="input-container">
+            <textarea placeholder="How can ThinkAI help you today?" rows="1"></textarea>
+            
+            <div class="input-footer">
+                <div class="model-selector">
+                    ThinkAI 3.5 Smart <span class="tag">
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 2v20M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                        Formal
+                        <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>
+                    </span>
                 </div>
                 
-                <div class="comparison-grid">
-                    <!-- Model 1 Card -->
-                    <div class="glass-card model-card model-rule">
-                        <div class="model-badge rule">Model 1: Baseline</div>
-                        <div class="model-meta">
-                            <h3>Rule-Based Mapping</h3>
-                            <span class="model-tech"><i class="fa-solid fa-code"></i> Algorithmic</span>
-                        </div>
-                        <div class="output-content" id="outputRule">
-                            <p class="placeholder-text">Devanagari output will appear here...</p>
-                        </div>
-                        <div class="model-stats-footer">
-                            <div class="footer-stat">
-                                <span class="stat-lbl">Word Acc</span>
-                                <span class="stat-val">~60.2%</span>
-                            </div>
-                            <div class="footer-stat">
-                                <span class="stat-lbl">Latency</span>
-                                <span class="stat-val">< 1ms</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Model 2 Card -->
-                    <div class="glass-card model-card model-seq2seq">
-                        <div class="model-badge seq2seq">Model 2: Mid-Tier</div>
-                        <div class="model-meta">
-                            <h3>Seq2Seq LSTM</h3>
-                            <span class="model-tech"><i class="fa-solid fa-network-wired"></i> Neural (Greedy)</span>
-                        </div>
-                        <div class="output-content" id="outputSeq2Seq">
-                            <p class="placeholder-text">Devanagari output will appear here...</p>
-                        </div>
-                        <div class="model-stats-footer">
-                            <div class="footer-stat">
-                                <span class="stat-lbl">Word Acc</span>
-                                <span class="stat-val">~76.5%</span>
-                            </div>
-                            <div class="footer-stat">
-                                <span class="stat-lbl">Status</span>
-                                <span class="stat-val" id="statusSeq2Seq"><i class="fa-solid fa-spinner fa-spin"></i> Checking</span>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Model 3 Card -->
-                    <div class="glass-card model-card model-attention">
-                        <div class="model-badge attention">Model 3: Primary ⭐</div>
-                        <div class="model-meta">
-                            <h3>Attention Seq2Seq</h3>
-                            <span class="model-tech"><i class="fa-solid fa-brain"></i> Neural (Beam=5)</span>
-                        </div>
-                        <div class="output-content" id="outputAttention">
-                            <p class="placeholder-text">Devanagari output will appear here...</p>
-                        </div>
-                        <div class="model-stats-footer">
-                            <div class="footer-stat">
-                                <span class="stat-lbl">Word Acc</span>
-                                <span class="stat-val">~86.8%</span>
-                            </div>
-                            <div class="footer-stat">
-                                <span class="stat-lbl">Status</span>
-                                <span class="stat-val" id="statusAttention"><i class="fa-solid fa-spinner fa-spin"></i> Checking</span>
-                            </div>
-                        </div>
-                    </div>
+                <div class="action-buttons">
+                    <button class="icon-btn" aria-label="Attach file">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M21.44 11.05l-9.19 9.19a6 6 0 0 1-8.49-8.49l9.19-9.19a4 4 0 0 1 5.66 5.66l-9.2 9.19a2 2 0 0 1-2.83-2.83l8.49-8.48"></path>
+                        </svg>
+                    </button>
+                    <button class="icon-btn" aria-label="Voice input">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"></path>
+                            <path d="M19 10v2a7 7 0 0 1-14 0v-2"></path>
+                            <line x1="12" y1="19" x2="12" y2="23"></line>
+                            <line x1="8" y1="23" x2="16" y2="23"></line>
+                        </svg>
+                    </button>
                 </div>
-            </section>
+            </div>
+        </div>
 
-            <!-- Academic Evaluation Dashboard -->
-            <section class="evaluation-dashboard-section">
-                <div class="glass-card dashboard-card">
-                    <div class="dashboard-header">
-                        <h2><i class="fa-solid fa-chart-line header-icon"></i> Scientific Evaluation Metrics</h2>
-                        <span class="citation-text">Trained on Google Research Dakshina Dataset (Hindi split)</span>
-                    </div>
-                    
-                    <div class="table-responsive">
-                        <table class="evaluation-table">
-                            <thead>
-                                <tr>
-                                    <th>Transliterator Architecture</th>
-                                    <th>Computational Rigor</th>
-                                    <th>Top-1 Word Accuracy (%)</th>
-                                    <th>Character Error Rate (CER %)</th>
-                                    <th>Mean Edit Distance</th>
-                                    <th>Inference Decoder</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <tr>
-                                    <td><strong class="col-rule">Model 1: Rule-Based Baseline</strong></td>
-                                    <td><span class="pill pill-low">Low Complexity</span></td>
-                                    <td>60.24%</td>
-                                    <td>13.82%</td>
-                                    <td>0.456</td>
-                                    <td>Deterministic Mapping</td>
-                                </tr>
-                                <tr>
-                                    <td><strong class="col-seq2seq">Model 2: Seq2Seq Bi-LSTM</strong></td>
-                                    <td><span class="pill pill-mid">Medium Complexity</span></td>
-                                    <td>76.45%</td>
-                                    <td>7.91%</td>
-                                    <td>0.264</td>
-                                    <td>Greedy Decoding</td>
-                                </tr>
-                                <tr class="highlight-row">
-                                    <td><strong class="col-attention"><i class="fa-solid fa-star text-gold"></i> Model 3: Attention Seq2Seq</strong></td>
-                                    <td><span class="pill pill-high">High Complexity</span></td>
-                                    <td><strong>86.82%</strong></td>
-                                    <td><strong>3.14%</strong></td>
-                                    <td><strong>0.098</strong></td>
-                                    <td>Beam Search (width=5)</td>
-                                </tr>
-                            </tbody>
-                        </table>
-                    </div>
+        <div class="footer-hints">
+            <span>ThinkAI can make mistakes. Please double-check responses.</span>
+            <span>Use <strong>shift + return</strong> for new line</span>
+        </div>
+    </main>
 
-                    <div class="dashboard-meta-info">
-                        <div class="info-item">
-                            <i class="fa-solid fa-circle-info info-icon"></i>
-                            <p><strong>Proof of "From-Scratch" Training:</strong> All neural weights are randomly initialized. Random weights initialization is proved by high initial cross-entropy training loss (~4.5) which correctly drops to <0.1 over epochs. Final training artifacts are preserved under `training/artifacts/`.</p>
-                        </div>
-                    </div>
-                </div>
-            </section>
-        </main>
-
-        <!-- Footer -->
-        <footer class="app-footer-bar">
-            <p>&copy; 2026 SightSync Transliteration Sandbox · Developed for Production Readiness</p>
-        </footer>
-    </div>
-
-    <!-- Script Resource -->
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
 </body>
 </html>

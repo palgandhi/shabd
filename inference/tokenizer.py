@@ -51,6 +51,9 @@ def transliterate_sentence_nn(sentence, model, src_vocab, tgt_vocab, decode_mode
             out.append(translit_word)
         else:
             # Preserve punctuation, numbers, and spaces
-            out.append(tok)
+            if tok == '.':
+                out.append('।')
+            else:
+                out.append(tok)
             
     return "".join(out)
