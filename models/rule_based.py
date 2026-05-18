@@ -64,8 +64,10 @@ def transliterate_word(word):
                         break
             
             if vowel is not None:
-                # HEURISTIC: In Hinglish, a trailing 'a' is almost always pronounced as 'aa' (ा)
-                # e.g., 'ka' -> का, 'kya' -> क्या, 'mera' -> मेरा, 'kaisa' -> कैसा
+                # HEURISTIC: In Hinglish, a trailing 'a' maps to long 'aa' (ा).
+                # Mid-word 'a' represents the inherent schwa (empty matra).
+                # e.g., 'bharat' -> भरत (short schwa), 'mera' -> मेरा (trailing aa)
+                # 'ka' -> का, 'namaste' -> नमस्ते, 'kaisa' -> कैसा
                 if vowel == 'a' and i + len(vowel) == len(word):
                     result += VOWEL_MATRAS['aa']
                 else:
@@ -96,7 +98,11 @@ def transliterate_word(word):
 
 def transliterate_sentence(sentence):
     """
-    Splits a sentence, transliterates Roman words individually, and preserves spaces/symbols.
+    Splits a sentence, transliterates Roman words individually using phonetic rules,
+    and preserves spaces/symbols.
+
+    This is the pure rule-based phonetic engine — no hardcoded dictionaries.
+    It is used as the primary baseline model AND as the OOV fallback for neural models.
     """
     if not sentence:
         return ""

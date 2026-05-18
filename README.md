@@ -1,6 +1,6 @@
 # शbda (शbda) - Hybrid Hinglish-to-Hindi Transliteration & Conversational AI Dashboard
 
-शbda is a state-of-the-art, hybrid Roman-to-Devanagari (Hinglish-to-Hindi) phonetic transliteration engine coupled with a local conversational AI assistant. It integrates classical linguistic mapping rules, custom-trained deep neural networks (LSTMs & Attention networks), and local Large Language Models (Ollama Qwen) into a premium, responsive glassmorphism workspace.
+शbda is a state-of-the-art, hybrid Roman-to-Devanagari (Hinglish-to-Hindi) phonetic transliteration engine coupled with a local conversational AI assistant. It integrates classical linguistic mapping rules, custom-trained deep neural networks (LSTMs & Attention networks), and local Large Language Models (Ollama Gemma) into a premium, responsive glassmorphism workspace.
 
 ---
 
@@ -11,7 +11,7 @@
     2.  **Standard Seq2Seq (Neural)**: A PyTorch-trained character-level Sequence-to-Sequence (LSTM) Encoder-Decoder model.
     3.  **Seq2Seq with Bahdanau Attention (Neural + Search)**: Custom PyTorch model utilizing active attention decoding paired with Beam Search (`beam_width=5`) for state-of-the-art accuracy.
 *   **Devanagari Punctuation-Aware**: Intelligently intercepts English full stops (`.`) and automatically converts them to Devanagari dandas (`।`) across all models.
-*   **Friendly Hindi Conversational AI**: Integrates locally with Ollama running `qwen2.5:3b` to generate conversational replies streamed token-by-token directly to the chat interface.
+*   **Friendly Hindi Conversational AI**: Integrates locally with Ollama running `gemma4:e2b` to generate conversational replies streamed token-by-token directly to the chat interface.
 *   **Concurrency & Stream Locking**: Programmatic UI locks (`isGenerating` state) that disable inputs, block duplicate submissions, and display custom spinner states during inference.
 *   **State-of-the-Art Glassmorphic UI**: Beautiful responsive layout containing:
     *   Dynamic translucent panels, real-time message bubble streams, and micro-interactions.
@@ -67,8 +67,8 @@ source venv/bin/activate
 # 2. Install Python dependencies
 pip install -r requirements.txt
 
-# 3. Pull and run the local Ollama Qwen Model
-ollama run qwen2.5:3b
+# 3. Pull and run the local Ollama Gemma Model
+ollama run gemma4:e2b
 
 # 4. Start the Flask api backend
 python3 app.py

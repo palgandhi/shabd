@@ -34,11 +34,15 @@ def get_collate_fn(pad_idx=0):
         return src_padded, tgt_padded
     return collate_fn
 
-def train_epoch(model, dataloader, optimizer, criterion, teacher_forcing_ratio, device):
+def train_epoch(model, dataloader, optimizer, criterion, teacher_forcing_ratio, device, epoch_idx=1):
     model.train()
     epoch_loss = 0
     
-    for src, trg in dataloader:
+    # Wrap dataloader in a beautiful tqdm progress bar
+    from tqdm import tqdm
+    pbar = tqdm(dataloader, desc=f"Epoch {epoch_idx:02} Training", leave=False)
+    
+    for src, trg in pbar:
         src, trg = src.to(device), trg.to(device)
         
         optimizer.zero_grad()
@@ -47,8 +51,6 @@ def train_epoch(model, dataloader, optimizer, criterion, teacher_forcing_ratio, 
         outputs = model(src, trg, teacher_forcing_ratio=teacher_forcing_ratio)
         
         # Slice predictions and targets to align outputs[:, t] -> trg[:, t+1]
-        # output shape: [batch_size, trg_len, vocab_size] -> outputs[:, :-1, :] has shape [batch_size, trg_len-1, vocab_size]
-        # target shape: [batch_size, trg_len] -> trg[:, 1:] has shape [batch_size, trg_len-1]
         output_dim = outputs.shape[-1]
         predictions = outputs[:, :-1, :].reshape(-1, output_dim)
         targets = trg[:, 1:].reshape(-1)
@@ -61,6 +63,9 @@ def train_epoch(model, dataloader, optimizer, criterion, teacher_forcing_ratio, 
         
         optimizer.step()
         epoch_loss += loss.item()
+        
+        # Show live batch loss in progress bar
+        pbar.set_postfix({"batch_loss": f"{loss.item():.4f}"})
         
     return epoch_loss / len(dataloader)
 
@@ -123,6 +128,7 @@ def train_main():
     HIDDEN_DIM = 256
     DEC_HIDDEN_DIM = 512
     EPOCHS = 30
+    PATIENCE = 5  # Stop if val loss doesn't improve for this many consecutive epochs
     
     encoder = Encoder(
         input_dim=len(src_vocab),
@@ -148,6 +154,7 @@ def train_main():
     scheduler = optim.lr_scheduler.ReduceLROnPlateau(optimizer, mode='min', factor=0.5, patience=2)
     
     best_valid_loss = float('inf')
+    epochs_no_improve = 0          # early-stopping counter
     model_save_path = "models/seq2seq_best.pt"
     os.makedirs("models", exist_ok=True)
     os.makedirs("training/artifacts", exist_ok=True)
@@ -156,7 +163,7 @@ def train_main():
     log_file = open(log_file_path, "a")
     log_file.write("\n--- Seq2Seq Training Log ---\n")
     
-    print(f"Starting Seq2Seq training (Model 2) for {EPOCHS} epochs...")
+    print(f"Starting Seq2Seq training (Model 2) — up to {EPOCHS} epochs, patience={PATIENCE}...")
     teacher_forcing = 0.5
     
     for epoch in range(EPOCHS):
@@ -164,21 +171,33 @@ def train_main():
         if epoch > 15:
             teacher_forcing = 0.3
             
-        train_loss = train_epoch(model, train_loader, optimizer, criterion, teacher_forcing, device)
+        train_loss = train_epoch(model, train_loader, optimizer, criterion, teacher_forcing, device, epoch_idx=epoch+1)
         valid_loss = evaluate(model, dev_loader, criterion, device)
         
         scheduler.step(valid_loss)
         
-        log_str = f"Epoch: {epoch+1:02} | Train Loss: {train_loss:.4f} | Val Loss: {valid_loss:.4f}\n"
-        print(log_str, end="")
-        log_file.write(log_str)
-        log_file.flush()
+        log_str = f"Epoch: {epoch+1:02} | Train Loss: {train_loss:.4f} | Val Loss: {valid_loss:.4f}"
         
-        # Save model if validation performance improves
+        # Save checkpoint only when val loss improves
         if valid_loss < best_valid_loss:
             best_valid_loss = valid_loss
+            epochs_no_improve = 0
             torch.save(model.state_dict(), model_save_path)
-            print(f"  Checkpoint saved: new lowest validation loss ({best_valid_loss:.4f})")
+            log_str += "  ✓ checkpoint saved"
+        else:
+            epochs_no_improve += 1
+            log_str += f"  (no improvement {epochs_no_improve}/{PATIENCE})"
+        
+        print(log_str)
+        log_file.write(log_str + "\n")
+        log_file.flush()
+        
+        # Early stopping
+        if epochs_no_improve >= PATIENCE:
+            print(f"\n  Early stopping triggered after {epoch+1} epochs (patience={PATIENCE} exhausted).")
+            print(f"  Best validation loss: {best_valid_loss:.4f}")
+            log_file.write(f"Early stopping at epoch {epoch+1}. Best val loss: {best_valid_loss:.4f}\n")
+            break
             
     log_file.close()
     print("Model 2 Seq2Seq training process completed!")
