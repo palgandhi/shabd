@@ -88,12 +88,17 @@ def evaluate_models():
     has_seq2seq = os.path.exists(seq2seq_path)
     seq2seq_model = None
     if has_seq2seq:
-        print("Loading trained standard Seq2Seq model (Model 2)...")
-        encoder2 = Seq2SeqEncoder(len(src_vocab), 64, 256, 512, 0.3)
-        decoder2 = Seq2SeqDecoder(len(tgt_vocab), 64, 512, 0.3)
-        seq2seq_model = Seq2Seq(encoder2, decoder2, device, sos_idx=1).to(device)
-        seq2seq_model.load_state_dict(torch.load(seq2seq_path, map_location=device))
-        seq2seq_model.eval()
+        try:
+            print("Loading trained standard Seq2Seq model (Model 2)...")
+            encoder2 = Seq2SeqEncoder(len(src_vocab), 64, 256, 512, 0.3)
+            decoder2 = Seq2SeqDecoder(len(tgt_vocab), 64, 512, 0.3)
+            seq2seq_model = Seq2Seq(encoder2, decoder2, device, sos_idx=1).to(device)
+            seq2seq_model.load_state_dict(torch.load(seq2seq_path, map_location=device))
+            seq2seq_model.eval()
+        except Exception as e:
+            print(f"Warning: Standard Seq2Seq (Model 2) checkpoint has shape/vocab mismatch ({e}). Skipping Model 2.")
+            has_seq2seq = False
+            seq2seq_model = None
     else:
         print("Model 2 (Seq2Seq) checkpoint not found. Skipping Seq2Seq evaluation.")
         
@@ -102,13 +107,18 @@ def evaluate_models():
     has_attention = os.path.exists(attention_path)
     attention_model = None
     if has_attention:
-        print("Loading trained Attention Seq2Seq model (Model 3)...")
-        encoder3 = AttentionEncoder(len(src_vocab), 128, 256, 512, 0.4)
-        attn = Attention(256, 512, 128)
-        decoder3 = AttentionDecoder(len(tgt_vocab), 128, 256, 512, attn, 0.4)
-        attention_model = AttentionSeq2Seq(encoder3, decoder3, device, sos_idx=1).to(device)
-        attention_model.load_state_dict(torch.load(attention_path, map_location=device))
-        attention_model.eval()
+        try:
+            print("Loading trained Attention Seq2Seq model (Model 3)...")
+            encoder3 = AttentionEncoder(len(src_vocab), 128, 256, 512, 0.4)
+            attn = Attention(256, 512, 128)
+            decoder3 = AttentionDecoder(len(tgt_vocab), 128, 256, 512, attn, 0.4)
+            attention_model = AttentionSeq2Seq(encoder3, decoder3, device, sos_idx=1).to(device)
+            attention_model.load_state_dict(torch.load(attention_path, map_location=device))
+            attention_model.eval()
+        except Exception as e:
+            print(f"Warning: Attention Seq2Seq (Model 3) checkpoint has shape/vocab mismatch ({e}). Skipping Model 3.")
+            has_attention = False
+            attention_model = None
     else:
         print("Model 3 (Attention Seq2Seq) checkpoint not found. Skipping Attention Seq2Seq evaluation.")
         
