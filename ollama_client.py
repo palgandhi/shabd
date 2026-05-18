@@ -13,14 +13,14 @@ SYSTEM_PROMPT = (
 class OllamaChat:
     """
     Wraps the Ollama /api/chat endpoint with multi-turn conversation history.
-    Uses gemma4:e2b by default. History is bounded to the last max_history
+    Uses qwen2.5:3b by default. History is bounded to the last max_history
     exchanges to prevent context overflow.
     """
 
-    def __init__(self, model="gemma4:e2b", system_prompt=SYSTEM_PROMPT, max_history=6):
+    def __init__(self, model="qwen2.5:3b", system_prompt=SYSTEM_PROMPT, max_history=6):
         self.model = model
         self.max_history = max_history
-        # Proper system role — Ollama/Gemma supports this correctly
+        # Proper system role — Ollama/Gemma/Qwen supports this correctly
         self.history = [{"role": "system", "content": system_prompt}]
 
     def chat(self, user_hindi):
